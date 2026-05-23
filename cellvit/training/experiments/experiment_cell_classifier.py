@@ -375,11 +375,7 @@ class ExperimentCellVitClassifier(BaseExperiment):
             Callable: CrossEntropyLoss
         """
         if weighted_sampling:
-            if self.run_conf["data"]["dataset"].lower() in [
-                "lizard_preextracted",
-                "lizard",
-                "panoptils",
-            ]:
+            if weight_list is not None:
                 loss_fn = retrieve_loss_fn(
                     "CrossEntropyLoss", weight=torch.Tensor(weight_list)
                 )

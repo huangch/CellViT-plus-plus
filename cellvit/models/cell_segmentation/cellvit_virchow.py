@@ -197,7 +197,7 @@ class CellViTVirchow(CellViT):
         out_dict = {}
         bs = x.shape[0]
         input_shape = x.shape[2]
-        rescale_value = self.input_rescale_dict[input_shape]
+        rescale_value = self.input_rescale_dict[int(input_shape)]
 
         x = F.interpolate(x, size=(rescale_value, rescale_value), mode="area")
         classifier_logits, _, z = self.encoder(x)

@@ -46,6 +46,7 @@ from cellvit.models.cell_segmentation.cellvit import CellViT
 from cellvit.models.cell_segmentation.cellvit_256 import CellViT256
 from cellvit.models.cell_segmentation.cellvit_sam import CellViTSAM
 from cellvit.models.cell_segmentation.cellvit_uni import CellViTUNI
+from cellvit.models.cell_segmentation.cellvit_virchow import CellViTVirchow
 from cellvit.utils.logger import Logger
 from cellvit.utils.tools import unflatten_dict
 from cellvit.models.classifier.linear_classifier import LinearClassifier
@@ -289,7 +290,7 @@ class CellViTInference:
             self.classifier = model
 
     def _get_model(
-        self, model_type: Literal["CellViT", "CellViT256", "CellViTSAM", "CellViTUNI"]
+        self, model_type: Literal["CellViT", "CellViT256", "CellViTSAM", "CellViTUNI", "CellViTVirchow"]
     ) -> Union[CellViT, CellViT256, CellViTSAM, CellViTUNI]:
         """Return the trained model for inference
 
@@ -300,7 +301,7 @@ class CellViTInference:
         Returns:
             Union[CellViT, CellViT256, CellViTSAM, CellViTUNI]: Model
         """
-        implemented_models = ["CellViT", "CellViT256", "CellViTSAM", "CellViTUNI"]
+        implemented_models = ["CellViT", "CellViT256", "CellViTSAM", "CellViTUNI", "CellViTVirchow"]
         if model_type not in implemented_models:
             raise NotImplementedError(
                 f"Unknown model type. Please select one of {implemented_models}"
@@ -337,6 +338,14 @@ class CellViTInference:
                 model_uni_path=None,
                 num_nuclei_classes=self.run_conf["data"]["num_nuclei_classes"],
                 num_tissue_classes=self.run_conf["data"]["num_tissue_classes"],
+            )
+        elif model_type in ["CellViTVirchow"]:
+            model = CellViTVirchow(
+                model_virchow_path=None,
+                num_nuclei_classes=self.run_conf["data"]
+                ["num_nuclei_classes"],
+                num_tissue_classes=self.run_conf["data"]
+                ["num_tissue_classes"]
             )
         return model
 
