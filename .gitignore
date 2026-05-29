@@ -37,7 +37,8 @@ cufile.log
 
 # local testing and checkpoints
 /logs_local
-/logs/Head-Evaluation
+# training/run logs are not tracked (published to HF Hub instead)
+/logs/
 
 # shell scripts for automation
 /runtime-scripts
