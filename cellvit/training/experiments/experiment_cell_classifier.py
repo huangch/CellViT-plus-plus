@@ -210,6 +210,7 @@ class ExperimentCellVitClassifier(BaseExperiment):
             weighted_sampling=self.run_conf["training"].get("weighted_sampling", False),
             weight_factor=self.run_conf["training"].get("weight_factor", 5),
             weight_list=self.run_conf["training"].get("weight_list", 5),
+            label_smoothing=self.run_conf["training"].get("label_smoothing", 0.0),
         )
         self.logger.info("Loss function:")
         self.logger.info(loss_fn)
@@ -361,6 +362,7 @@ class ExperimentCellVitClassifier(BaseExperiment):
         weighted_sampling: bool = False,
         weight_factor: int = 5,
         weight_list: List[float] = None,
+        label_smoothing: float = 0.0,
     ) -> Callable:
         """Return loss function
 
@@ -370,6 +372,7 @@ class ExperimentCellVitClassifier(BaseExperiment):
             weighted_sampling (bool, optional): If weighted CE loss should be used. Defaults to False.
             weight_factor (int, optional): Weight factor for binary classifcation for the second class. Defaults to 5.
             weight_list (List[float], optional): Weight list for multiclass. Defaults to None.
+            label_smoothing (float, optional): Label smoothing factor for CrossEntropyLoss. Defaults to 0.0.
 
         Returns:
             Callable: CrossEntropyLoss
@@ -377,13 +380,21 @@ class ExperimentCellVitClassifier(BaseExperiment):
         if weighted_sampling:
             if weight_list is not None:
                 loss_fn = retrieve_loss_fn(
-                    "CrossEntropyLoss", weight=torch.Tensor(weight_list)
+                    "CrossEntropyLoss",
+                    weight=torch.Tensor(weight_list),
+                    label_smoothing=label_smoothing,
                 )
             else:
                 class_weights = torch.Tensor([1 / weight_factor, 1])
-                loss_fn = retrieve_loss_fn("CrossEntropyLoss", weight=class_weights)
+                loss_fn = retrieve_loss_fn(
+                    "CrossEntropyLoss",
+                    weight=class_weights,
+                    label_smoothing=label_smoothing,
+                )
         else:
-            loss_fn = retrieve_loss_fn("CrossEntropyLoss")
+            loss_fn = retrieve_loss_fn(
+                "CrossEntropyLoss", label_smoothing=label_smoothing
+            )
         return loss_fn
 
     def get_scheduler(self, scheduler_type: str, optimizer: Optimizer) -> _LRScheduler:
