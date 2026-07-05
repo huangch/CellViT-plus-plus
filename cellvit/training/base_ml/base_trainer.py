@@ -107,7 +107,7 @@ class BaseTrainer:
         self.log_images = log_images
         self.mixed_precision = mixed_precision
         if self.mixed_precision:
-            self.scaler = torch.cuda.amp.GradScaler(enabled=True)
+            self.scaler = torch.amp.GradScaler("cuda", enabled=True)
         else:
             self.scaler = None
 
