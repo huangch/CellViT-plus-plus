@@ -421,7 +421,6 @@ def cell_type_detection_scores(
     unpaired_pred,
     type_id,
     w: List = [2, 2, 1, 1],
-    exhaustive: bool = True,
 ):
     type_samples = (paired_true == type_id) | (paired_pred == type_id)
 
@@ -432,10 +431,6 @@ def cell_type_detection_scores(
     tn_dt = ((paired_true != type_id) & (paired_pred != type_id)).sum()
     fp_dt = ((paired_true != type_id) & (paired_pred == type_id)).sum()
     fn_dt = ((paired_true == type_id) & (paired_pred != type_id)).sum()
-
-    if not exhaustive:
-        ignore = (paired_true == -1).sum()
-        fp_dt -= ignore
 
     fp_d = (unpaired_pred == type_id).sum()  #
     fn_d = (unpaired_true == type_id).sum()
