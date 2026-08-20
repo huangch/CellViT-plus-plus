@@ -431,8 +431,6 @@ class CellViTHeadTrainer(BaseTrainer):
         """
         # metrics for cell extraction
         extracted_cells = []
-        f1s = []
-        precs = []
         recs = []
 
         # postprocessor to get cell detections
@@ -458,8 +456,8 @@ class CellViTHeadTrainer(BaseTrainer):
                     ):
                         (
                             batch_cells,
-                            batch_f1s,
-                            batch_precs,
+                            _,
+                            _,
                             batch_recs,
                         ) = self.get_cellvit_result(
                             images=images,
@@ -469,13 +467,11 @@ class CellViTHeadTrainer(BaseTrainer):
                             postprocessor=postprocessor,
                         )
                         extracted_cells = extracted_cells + batch_cells
-                        f1s = f1s + batch_f1s
                         recs = recs + batch_recs
-                        precs = precs + batch_precs
+                    # Precision/F1 are unmeasurable here: annotation is not exhaustive, so an unpaired detection is usually a real cell.
                     self.logger.info(
-                        f"Extraction detection metrics - F1: {np.mean(np.array(f1s)):.3f}, Precision: {np.mean(np.array(precs)):.3f}, Recall: {np.mean(np.array(recs)):.3f}, Detected-Cells: {len(extracted_cells)}"
+                        f"Extraction detection metrics - Recall: {np.mean(np.array(recs)):.3f}, Detected-Cells: {len(extracted_cells)}"
                     )
-                    self.logger.info
             if self.cache_cell_dataset:
                 self.cached_dataset["Train-Cells"] = extracted_cells
                 if not dataset_cache_exists:
@@ -649,8 +645,6 @@ class CellViTHeadTrainer(BaseTrainer):
         """
         # metrics for cell extraction
         extracted_cells = []
-        f1s = []
-        precs = []
         recs = []
 
         # postprocessor to get cell detections
@@ -674,8 +668,8 @@ class CellViTHeadTrainer(BaseTrainer):
                     ):
                         (
                             batch_cells,
-                            batch_f1s,
-                            batch_precs,
+                            _,
+                            _,
                             batch_recs,
                         ) = self.get_cellvit_result(
                             images=images,
@@ -685,11 +679,10 @@ class CellViTHeadTrainer(BaseTrainer):
                             postprocessor=postprocessor,
                         )
                         extracted_cells = extracted_cells + batch_cells
-                        f1s = f1s + batch_f1s
                         recs = recs + batch_recs
-                        precs = precs + batch_precs
+                # See train_epoch: only recall is measurable under non-exhaustive annotation.
                 self.logger.info(
-                    f"Extraction detection metrics - F1: {np.mean(np.array(f1s)):.3f}, Precision: {np.mean(np.array(precs)):.3f}, Recall: {np.mean(np.array(recs)):.3f}, Detected-Cells: {len(extracted_cells)}"
+                    f"Extraction detection metrics - Recall: {np.mean(np.array(recs)):.3f}, Detected-Cells: {len(extracted_cells)}"
                 )
                 self._cache_results(extracted_cells, "val")
             self.cached_dataset["Val-Cells"] = extracted_cells
