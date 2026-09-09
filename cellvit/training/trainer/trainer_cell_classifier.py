@@ -281,7 +281,9 @@ class CellViTHeadTrainer(BaseTrainer):
             )
             # Write data to datasets
             for i, cell in tqdm.tqdm(
-                enumerate(extracted_cells), total=len(extracted_cells)
+                enumerate(extracted_cells), total=len(extracted_cells),
+                desc=f"train:cache[{dataset_part}]", unit="cell",
+                ascii=" =", dynamic_ncols=True,
             ):
                 images[i] = cell["image"]
                 coords[i] = cell["coords"]
@@ -452,7 +454,9 @@ class CellViTHeadTrainer(BaseTrainer):
                         types_batch,
                         image_names,
                     ) in tqdm.tqdm(
-                        enumerate(train_dataloader), total=len(train_dataloader)
+                        enumerate(train_dataloader), total=len(train_dataloader),
+                        desc="train:extract", unit="batch",
+                        ascii=" =", dynamic_ncols=True,
                     ):
                         (
                             batch_cells,
@@ -508,7 +512,9 @@ class CellViTHeadTrainer(BaseTrainer):
 
         # loop
         train_loop = tqdm.tqdm(
-            enumerate(train_embedding_dataloader), total=len(train_embedding_dataloader)
+            enumerate(train_embedding_dataloader), total=len(train_embedding_dataloader),
+            desc=f"train:epoch {epoch}", unit="batch",
+            ascii=" =", dynamic_ncols=True,
         )
         for batch_idx, batch in train_loop:
             batch_metrics = self.train_step(
@@ -664,7 +670,9 @@ class CellViTHeadTrainer(BaseTrainer):
                         types_batch,
                         image_names,
                     ) in tqdm.tqdm(
-                        enumerate(val_dataloader), total=len(val_dataloader)
+                        enumerate(val_dataloader), total=len(val_dataloader),
+                        desc="val:extract", unit="batch",
+                        ascii=" =", dynamic_ncols=True,
                     ):
                         (
                             batch_cells,
@@ -713,7 +721,9 @@ class CellViTHeadTrainer(BaseTrainer):
 
             # loop
             val_loop = tqdm.tqdm(
-                enumerate(val_embedding_dataloader), total=len(val_embedding_dataloader)
+                enumerate(val_embedding_dataloader), total=len(val_embedding_dataloader),
+                desc=f"val:epoch {epoch}", unit="batch",
+                ascii=" =", dynamic_ncols=True,
             )
             for batch_idx, batch in val_loop:
                 batch_metrics = self.validation_step(batch, batch_idx)
