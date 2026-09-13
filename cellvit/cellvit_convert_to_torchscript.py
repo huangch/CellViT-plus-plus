@@ -448,6 +448,19 @@ class CellViTTorchScriptConverter:
                 # ---- classifier checkpoint ---------------------------------
                 cls_conf = unflatten_dict(model_checkpoint["config"], ".")
                 cellvit_path = cls_conf["cellvit_path"]
+                # The embedded config records where the base backbone lived at
+                # training time; a checkout that has moved breaks the load. Fall
+                # back to the model shipped beside this trainer (cellvit/models).
+                if not os.path.isfile(cellvit_path):
+                    fallback = os.path.join(
+                        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                        "models",
+                        os.path.basename(cellvit_path),
+                    )
+                    if os.path.isfile(fallback):
+                        print(f"  ⚠ Embedded base path is gone: {cellvit_path}")
+                        print(f"  Using the locally shipped backbone: {fallback}")
+                        cellvit_path = fallback
                 print(f"→ Detected LinearClassifier checkpoint.")
                 print(f"  Loading base CellViT from: {cellvit_path}")
 
