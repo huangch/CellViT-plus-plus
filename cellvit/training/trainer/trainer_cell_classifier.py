@@ -230,10 +230,22 @@ class CellViTHeadTrainer(BaseTrainer):
             cache_path = dataset_path / "cache" / f"{self.val_dataset_hash}.h5"
         else:
             raise NotImplementedError("Unknown set")
-        if cache_path.exists():
-            return True
-        else:
+        if not cache_path.exists():
             return False
+        # A write interrupted by a crash leaves a truncated .h5 that opens fine
+        # and only fails on read. Probe the last element of every dataset, which
+        # is where the truncation sits, so the run re-extracts instead of dying
+        # in _load_from_cache with an unrelated-looking h5py address error.
+        try:
+            with h5py.File(cache_path, "r") as f:
+                for key in ("images", "coords", "types", "tokens"):
+                    f[key][-1:]
+        except (OSError, KeyError, ValueError) as exc:
+            self.logger.warning(
+                f"Ignoring unreadable cache {cache_path}: {exc}. Re-extracting."
+            )
+            return False
+        return True
 
     def _cache_results(self, extracted_cells: List, dataset_part: str) -> None:
         """Cache results
